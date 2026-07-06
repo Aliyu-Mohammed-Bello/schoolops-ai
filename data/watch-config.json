@@ -1,0 +1,22 @@
+{
+  "students": {
+    "uploaded": false,
+    "filePath": null,
+    "lastSynced": null
+  },
+  "teachers": {
+    "uploaded": false,
+    "filePath": null,
+    "lastSynced": null
+  },
+  "attendance": {
+    "uploaded": false,
+    "filePath": null,
+    "lastSynced": null
+  },
+  "results": {
+    "uploaded": false,
+    "filePath": null,
+    "lastSynced": null
+  }
+}
