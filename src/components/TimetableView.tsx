@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, Sparkles, Download, RefreshCw, CheckCircle, AlertTriangle, FileText, Trash2, Plus, BookOpen } from 'lucide-react';
+import { Calendar, Sparkles, Download, RefreshCw, CheckCircle, AlertTriangle, FileText, Trash2, Plus, Minus, BookOpen } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
 interface TimetableSlot {
@@ -131,6 +131,31 @@ export const TimetableView: React.FC = () => {
       setError(err.message || 'Optimization solver failed.');
     } finally {
       setGenerating(false);
+    }
+  };
+
+  const handleUpdatePeriods = async (id: number, currentPeriods: number, increment: boolean) => {
+    const newPeriods = increment ? currentPeriods + 1 : currentPeriods - 1;
+    if (newPeriods < 1 || newPeriods > 10) {
+      setError("Periods per week must be between 1 and 10.");
+      return;
+    }
+    setError(null);
+    setSuccessMsg(null);
+    try {
+      const res = await fetch('/api/curriculum/update-periods', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, periods_per_week: newPeriods })
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || 'Failed to update curriculum periods.');
+      }
+      setSuccessMsg('Curriculum periods updated successfully.');
+      fetchCurriculum(selectedClass);
+    } catch (err: any) {
+      setError(err.message || 'Error updating periods.');
     }
   };
 
@@ -420,16 +445,39 @@ export const TimetableView: React.FC = () => {
                 key={subj.id} 
                 className="bg-[#1D2433]/30 border border-white/5 p-3 rounded-xl flex items-center justify-between hover:border-white/10 transition-all"
               >
-                <div className="space-y-0.5">
+                <div className="space-y-0.5 flex-1 pr-2">
                   <div className="font-bold text-white text-xs">{subj.subject}</div>
-                  <div className="flex items-center gap-2 text-[10px]">
-                    <span className="text-[#9AA3B8]">
-                      Periods/Week: <strong className="text-[#F1F3F8]">{subj.periods_per_week}</strong>
-                    </span>
+                  <div className="flex flex-col gap-1">
+                    <div className="flex items-center gap-1.5 mt-1">
+                      <span className="text-[10px] text-[#9AA3B8] font-bold">Periods:</span>
+                      <div className="flex items-center gap-1 bg-[#0B0E17] border border-white/5 rounded px-1 py-0.5">
+                        <button
+                          type="button"
+                          onClick={() => handleUpdatePeriods(subj.id, subj.periods_per_week, false)}
+                          className="p-0.5 text-[#9AA3B8] hover:text-white hover:bg-white/5 rounded transition-all cursor-pointer"
+                          title="Decrease Periods"
+                        >
+                          <Minus className="w-2.5 h-2.5" />
+                        </button>
+                        <span className="text-[11px] font-bold text-[#F1F3F8] px-1 min-w-[12px] text-center">
+                          {subj.periods_per_week}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => handleUpdatePeriods(subj.id, subj.periods_per_week, true)}
+                          className="p-0.5 text-[#9AA3B8] hover:text-white hover:bg-white/5 rounded transition-all cursor-pointer"
+                          title="Increase Periods"
+                        >
+                          <Plus className="w-2.5 h-2.5" />
+                        </button>
+                      </div>
+                    </div>
                     {subj.is_double_period === 1 && (
-                      <span className="bg-[#8B5CF6]/10 text-[#8B5CF6] text-[9px] font-bold px-1.5 py-0.2 rounded">
-                        Double
-                      </span>
+                      <div className="flex">
+                        <span className="bg-[#8B5CF6]/10 text-[#8B5CF6] text-[9px] font-bold px-1.5 py-0.5 rounded">
+                          Double Period
+                        </span>
+                      </div>
                     )}
                   </div>
                 </div>

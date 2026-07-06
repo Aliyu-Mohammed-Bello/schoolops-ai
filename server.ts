@@ -14,7 +14,7 @@ import { generatePDF, generateDocx } from './src/documentExporter';
 initWatchers();
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = 3000;
 
 app.use(express.json());
 
@@ -343,6 +343,25 @@ app.delete(['/api/curriculum/:id', '/curriculum/:id'], (req, res) => {
   }
 });
 
+// POST /api/curriculum/update-periods and /curriculum/update-periods
+app.post(['/api/curriculum/update-periods', '/curriculum/update-periods'], (req, res) => {
+  const { id, periods_per_week } = req.body;
+  if (!id || periods_per_week === undefined) {
+    return res.status(400).json({ error: "id and periods_per_week are required." });
+  }
+  const periods = Number(periods_per_week);
+  if (isNaN(periods) || periods < 1 || periods > 10) {
+    return res.status(400).json({ error: "periods_per_week must be a number between 1 and 10." });
+  }
+  try {
+    db.prepare('UPDATE curriculum SET periods_per_week = ? WHERE id = ?').run(periods, id);
+    const updated = db.prepare('SELECT * FROM curriculum WHERE id = ?').get(id);
+    res.json(updated);
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Reports text fetches
 app.get('/api/reports/student', (req, res) => {
   try {
@@ -521,7 +540,7 @@ async function startServer() {
   }
 
   app.listen(PORT, '0.0.0.0', () => {
-    console.log(`[SchoolOps AI] Server running on port ${PORT}`);
+    console.log(`[SchoolOps AI] Server running on http://localhost:${PORT}`);
   });
 }
 

@@ -65,8 +65,7 @@ db.exec(`
     day TEXT NOT NULL,
     period INTEGER NOT NULL,
     teacher_id TEXT NOT NULL,
-    subject TEXT NOT NULL,
-    FOREIGN KEY(teacher_id) REFERENCES teachers(teacher_id) ON DELETE CASCADE
+    subject TEXT NOT NULL
   );
 
   CREATE TABLE IF NOT EXISTS curriculum (
@@ -78,6 +77,35 @@ db.exec(`
     UNIQUE(class, subject)
   );
 `);
+
+// Migration: recreate timetable_slots without FK constraint if it still has one
+// (SQLite does not support ALTER TABLE DROP CONSTRAINT, so we recreate the table)
+try {
+  const tableInfo = db.prepare("SELECT sql FROM sqlite_master WHERE type='table' AND name='timetable_slots'").get() as { sql: string } | undefined;
+  if (tableInfo && tableInfo.sql && tableInfo.sql.includes('FOREIGN KEY')) {
+    db.exec(`
+      PRAGMA foreign_keys = OFF;
+      BEGIN TRANSACTION;
+      ALTER TABLE timetable_slots RENAME TO timetable_slots_old;
+      CREATE TABLE timetable_slots (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        class_name TEXT NOT NULL,
+        day TEXT NOT NULL,
+        period INTEGER NOT NULL,
+        teacher_id TEXT NOT NULL,
+        subject TEXT NOT NULL
+      );
+      INSERT INTO timetable_slots (id, class_name, day, period, teacher_id, subject)
+        SELECT id, class_name, day, period, teacher_id, subject FROM timetable_slots_old;
+      DROP TABLE timetable_slots_old;
+      COMMIT;
+      PRAGMA foreign_keys = ON;
+    `);
+    console.log('[SchoolOps AI] Migrated timetable_slots: removed FK constraint.');
+  }
+} catch (migErr) {
+  console.error('[SchoolOps AI] Migration warning:', migErr);
+}
 
 // Setup config persistence
 const configPath = path.join(DB_DIR, 'watch-config.json');

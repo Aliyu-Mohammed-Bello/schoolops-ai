@@ -10,7 +10,9 @@ import {
   Lock, 
   UserCheck, 
   CheckCircle,
-  Clock
+  Clock,
+  Menu,
+  X
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -45,6 +47,7 @@ export default function App() {
 
   // Active Tab routing state
   const [activeTab, setActiveTab] = useState<ActiveTab>('dashboard');
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Unified file watch status config fetched from backend
   const [watchConfig, setWatchConfig] = useState<WatchConfig>(defaultWatchConfig);
@@ -57,7 +60,7 @@ export default function App() {
         setWatchConfig(data);
       }
     } catch (err) {
-      console.error('Failed to retrieve file sync watch configuration', err);
+      console.warn('Unable to synchronize watch configuration:', err instanceof Error ? err.message : String(err));
     }
   };
 
@@ -177,13 +180,34 @@ export default function App() {
   ] as const;
 
   return (
-    <div className="min-h-screen bg-[#0B0E17] flex relative overflow-hidden">
+    <div className="min-h-screen bg-[#0B0E17] flex flex-col md:flex-row relative overflow-hidden">
       {/* Background Glows */}
       <div className="absolute top-0 left-0 w-96 h-96 bg-[#3B82F6] opacity-10 blur-[100px] pointer-events-none"></div>
       <div className="absolute top-0 right-0 w-96 h-96 bg-[#8B5CF6] opacity-10 blur-[100px] pointer-events-none"></div>
       
-      {/* FIXED LEFT SIDEBAR (248px) */}
-      <aside className="w-[248px] bg-[#0B0E17] border-r border-white/5 flex flex-col justify-between shrink-0 h-screen sticky top-0 z-10">
+      {/* Mobile Top Navigation Bar */}
+      <header className="md:hidden w-full bg-[#0B0E17]/95 backdrop-blur-md border-b border-white/5 px-6 py-4 flex items-center justify-between sticky top-0 z-20">
+        <div className="flex items-center gap-2.5">
+          <Logo />
+          <div>
+            <h2 className="text-sm font-extrabold text-[#F1F3F8] tracking-tight leading-none">
+              SchoolOps
+            </h2>
+            <span className="text-[9px] font-bold bg-gradient-to-r from-[#3B82F6] via-[#8B5CF6] to-[#14B8A6] bg-clip-text text-transparent mt-0.5 block">
+              AI COORDINATOR
+            </span>
+          </div>
+        </div>
+        <button
+          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          className="p-2 bg-white/5 border border-white/5 rounded-xl text-white hover:bg-white/10 transition-all cursor-pointer"
+        >
+          {isMobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
+        </button>
+      </header>
+
+      {/* PERSISTENT DESKTOP LEFT SIDEBAR */}
+      <aside className="hidden md:flex w-[248px] bg-[#0B0E17] border-r border-white/5 flex-col justify-between shrink-0 h-screen sticky top-0 z-10">
         <div>
           {/* Logo Wordmark Header */}
           <div className="p-6 flex items-center gap-3 border-b border-white/5">
@@ -244,8 +268,92 @@ export default function App() {
         </div>
       </aside>
 
+      {/* MOBILE SLIDING SIDEBAR DRAWER */}
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <>
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-30 md:hidden"
+            />
+            {/* Drawer */}
+            <motion.aside
+              initial={{ x: '-100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '-100%' }}
+              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+              className="fixed inset-y-0 left-0 w-[248px] bg-[#0B0E17] border-r border-white/5 flex flex-col justify-between h-full z-40 md:hidden"
+            >
+              <div>
+                <div className="p-6 flex items-center gap-3 border-b border-white/5">
+                  <Logo />
+                  <div>
+                    <h2 className="text-base font-extrabold text-[#F1F3F8] tracking-tight leading-none">
+                      SchoolOps
+                    </h2>
+                    <span className="text-[10px] font-bold bg-gradient-to-r from-[#3B82F6] via-[#8B5CF6] to-[#14B8A6] bg-clip-text text-transparent mt-1 block">
+                      AI COORDINATOR
+                    </span>
+                  </div>
+                </div>
+
+                <nav className="p-4 space-y-1 mt-2">
+                  {navItems.map(item => {
+                    const Icon = item.icon;
+                    const isActive = activeTab === item.id;
+                    return (
+                      <button
+                        key={item.id}
+                        onClick={() => {
+                          setActiveTab(item.id);
+                          setIsMobileMenuOpen(false);
+                        }}
+                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                          isActive 
+                            ? 'bg-white/5 border border-white/5 text-[#3B82F6]'
+                            : 'text-[#9AA3B8] hover:bg-white/5 hover:text-[#F1F3F8]'
+                        }`}
+                      >
+                        <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-[#3B82F6]' : 'text-[#5C6478]'}`} />
+                        <span>{item.label}</span>
+                      </button>
+                    );
+                  })}
+                </nav>
+              </div>
+
+              <div className="p-4 border-t border-white/5 bg-white/5 flex items-center justify-between m-4 rounded-xl">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#3B82F6] to-[#8B5CF6] flex items-center justify-center font-extrabold text-sm text-white shrink-0">
+                    AD
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <span className="block text-sm font-semibold text-[#F1F3F8] truncate">Admin User</span>
+                    <span className="block text-[11px] text-[#5C6478] font-bold uppercase tracking-wider">Administrator</span>
+                  </div>
+                </div>
+                <button
+                  onClick={() => {
+                    handleLogout();
+                    setIsMobileMenuOpen(false);
+                  }}
+                  title="Log out of session"
+                  className="p-1.5 bg-[#0B0E17]/60 hover:bg-[#EF4444]/15 hover:text-[#EF4444] text-[#5C6478] border border-[rgba(255,255,255,0.05)] hover:border-[#EF4444]/30 rounded-lg transition-all cursor-pointer shrink-0"
+                >
+                  <LogOut className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            </motion.aside>
+          </>
+        )}
+      </AnimatePresence>
+
       {/* MAIN VIEWPORT PORT */}
-      <main className="flex-1 overflow-x-hidden p-8 max-w-7xl mx-auto w-full relative z-10">
+      <main className="flex-1 overflow-x-hidden p-4 md:p-8 max-w-7xl mx-auto w-full relative z-10">
         <AnimatePresence mode="wait">
           <motion.div
             key={activeTab}
