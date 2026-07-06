@@ -1,19 +1,164 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# 🎓 SchoolOps AI
 
-# Run and deploy your AI Studio app
+**SchoolOps AI** is an AI-powered school administration platform that automates academic and administrative workflows using Google Gemini Function Calling, a Node.js backend, and a React frontend.
 
-This contains everything you need to run your app locally.
-https://ai.studio/apps/62f01e8b-8c48-49b4-a200-766611adfa9e
+Designed as an intelligent AI agent, SchoolOps AI understands natural language requests and executes backend functions to help schools manage students, teachers, attendance, reports, and timetables with minimal manual effort.
 
-## Run Locally
+---
 
-**Prerequisites:**  Node.js
+## ✨ Features
 
+- 🤖 AI-powered school administration assistant
+- 👨‍🎓 Student management system
+- 👩‍🏫 Teacher management
+- 📅 Attendance tracking and analytics
+- 🗓️ Automated conflict-free timetable generation
+- 📊 Academic performance reporting
+- 📚 Curriculum management
+- 📁 Spreadsheet synchronization with automatic file watching
+- 📄 Export reports as PDF and DOCX
+- 💬 Natural language interaction through Google Gemini Function Calling
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+---
+
+## 🧠 AI Agent Architecture
+
+SchoolOps AI uses a **tool-based AI agent architecture** powered by **Google Gemini Function Calling**.
+
+Instead of hardcoded workflows, users can interact with the system using natural language. The AI determines the appropriate backend function to execute and returns structured results.
+
+### Supported AI Actions
+
+- Retrieve student records
+- Retrieve teacher information
+- Analyze attendance
+- Generate academic reports
+- Create timetables
+- Manage curriculum data
+- Synchronize spreadsheet data
+
+---
+
+## 🛠️ Tech Stack
+
+### Backend
+
+- Node.js
+- Express.js
+- SQLite (better-sqlite3)
+- Google Gemini API
+- Chokidar
+- PDFKit
+- DOCX
+
+### Frontend
+
+- React
+- Vite
+
+---
+
+## 📂 Project Structure
+
+```text
+SchoolOps-AI/
+├── backend/
+│   ├── ai/
+│   ├── db/
+│   ├── routes/
+│   ├── services/
+│   └── server.js
+│
+├── frontend/
+│   ├── src/
+│   ├── public/
+│   └── vite.config.js
+│
+├── data/
+├── exports/
+├── package.json
+└── README.md
+```
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- Node.js (v18 or later)
+- npm
+- Google Gemini API Key
+
+### Installation
+
+Clone the repository:
+
+```bash
+git clone https://github.com/yourusername/SchoolOps-AI.git
+```
+
+Navigate into the project directory:
+
+```bash
+cd SchoolOps-AI
+```
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+---
+
+## ⚙️ Environment Variables
+
+Create a `.env` file in the project root and add:
+
+```env
+GEMINI_API_KEY=your_gemini_api_key
+```
+
+---
+
+## ▶️ Running the Application
+
+Start the development server:
+
+```bash
+npm run dev
+```
+
+The application will launch the backend and frontend (depending on your project configuration).
+
+---
+
+## 📌 Core Capabilities
+
+- AI-driven school administration
+- Intelligent function calling
+- Real-time spreadsheet synchronization
+- Automated timetable scheduling
+- Attendance insights
+- Academic reporting
+- PDF and DOCX exports
+- Modular backend architecture
+
+---
+
+## 🎯 Project Purpose
+
+SchoolOps AI was developed as an **AI Agents Capstone Project** to demonstrate:
+
+- AI Function Calling
+- Multi-tool orchestration
+- Intelligent backend automation
+- Real-time data workflows
+- Full-stack AI application development
+
+---
+
+## 📜 License
+
+This project is intended for educational and demonstration purposes.
